@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MOD id="sysfunction" desc="菜单管理">
+
+    <!-- 基础配置 -->
+
+    <!-- 列表数据页 -->
+    <PAGE id="list" path="page/admin/sys/function/list.jsp" desc="列表数据"></PAGE>
+    <DATA id="dl" desc = "数据列表">
+        <SQL id="getlist" desc="查询数据" upper="false" tpl="select b.ID,b.FID,b.FNAME,b.PID,b.RESURL
+				,b.GRADE,b.FTYPE,b.STATE,b.PRIORITY,b.ICON
+				,b.SPREAD,b.CODE,b.CDATE,b.CREATOR,b.TYPE
+				,b.REMARK,b.ISLEAF,b.chanId,b.alias,b.actionType from t_sys_function b
+            where FTYPE='page' and @key order by b.ID desc"
+             trans="STATE@IS_STATE,TYPE@MENU_TYPE,GRADE@menuGrade">
+
+            <DT id="key" tpl="(b.FID like '%:params%' or b.FNAME like '%:params%' or b.RESURL like '%:params%' or b.PRIORITY like '%:params%' or b.REMARK like '%:params%')" npl="1=1" para="params"></DT>
+        </SQL>
+    </DATA>
+
+    <!-- 新增页 -->
+    <PAGE id="add" var="parentList,atList,gradeList,data" desc="新增" path="page/admin/sys/function/au.jsp">
+        <SQL id="parentList" tpl="select b.FID id,b.PID pid,b.FNAME value from t_sys_function b where b.state=1 and b.ISLEAF=0 and ftype='page'" desc="加载上级菜单" upper="false"></SQL>
+        <SQL id="atList" tpl="select * from t_sys_params where prmCode='actionType' and isLock=0" desc="加载导航深度" upper="false"></SQL>
+        <SQL id="gradeList" tpl="select * from t_sys_params where prmCode='menuGrade' and isLock=0" desc="加载菜单等级参数" upper="false"></SQL>
+        <TREE id="data" source="parentList" pid="pid" nid="id" nodeName ="data" tval="-1"></TREE>
+    </PAGE>
+
+    <!-- 修改页 -->
+    <PAGE id="edit" var="parentList,atList,gradeList,data" path="page/admin/sys/function/au.jsp" desc="修改">
+        <SQL id="getSingle" tpl="select b.ID,b.FID,b.FNAME,b.PID,b.RESURL
+				,b.GRADE,b.FTYPE,b.STATE,b.PRIORITY,b.ICON
+				,b.SPREAD,b.CODE,b.CDATE,b.CREATOR,b.TYPE
+				,b.REMARK,b.ISLEAF,b.chanId,b.alias,b.actionType from t_sys_function b where ID = ?" para="ID" storeRow="1" upper="false">
+        </SQL>
+        <SQL id="parentList" tpl="select b.FID id,b.PID pid,b.FNAME value from t_sys_function b where b.state=1 and ftype='page'" desc="加载所属导航" upper="false"></SQL>
+        <SQL id="atList" tpl="select * from t_sys_params where prmCode='actionType' and isLock=0" desc="加载导航深度" upper="false"></SQL>
+        <SQL id="gradeList" tpl="select * from t_sys_params where prmCode='menuGrade' and isLock=0" desc="加载菜单等级参数" upper="false"></SQL>
+        <TREE id="data" source="parentList" pid="pid" nid="id" nodeName ="data" tval="-1"></TREE>
+    </PAGE>
+
+    <!-- 详情页 -->
+    <PAGE id="view" var="parentList,atList,gradeList" path="page/admin/sys/function/detl.jsp" desc="详情">
+        <SQL id="getSingle" tpl="select b.ID,b.FID,b.FNAME,
+                (SELECT f.FNAME FROM t_sys_function f where f.FID=b.PID) PNAME,b.PID,b.RESURL
+				,b.GRADE,b.FTYPE,b.STATE,b.PRIORITY,b.ICON
+				,b.SPREAD,b.CODE,b.CDATE,b.CREATOR,b.TYPE
+				,b.REMARK,b.ISLEAF,b.chanId,b.alias,b.actionType from t_sys_function b where @ID" upper="false" storeRow="1">
+            <DT id="ID" tpl="ID=':ID'" para="ID"></DT>
+        </SQL>
+        <SQL id="parentList" tpl="select b.FID id,b.FNAME value from t_sys_function b where b.state=1 and ftype='page'" desc="加载所属导航" upper="false"></SQL>
+        <SQL id="atList" tpl="select * from t_sys_params where prmCode='actionType' and isLock=0" desc="加载导航深度" upper="false"></SQL>
+        <SQL id="gradeList" tpl="select * from t_sys_params where prmCode='menuGrade' and isLock=0" desc="加载菜单等级参数" upper="false"></SQL>
+    </PAGE>
+
+    <!-- 是否存在 -->
+    <FUNC id="exists" tpl="{'check':'@docheck'}" attr="docheck" desc="是否存在">
+        <SQL id="getExists" tpl="select count(1) num from t_sys_function where FID=? and @id " para="FID" storeVal="num" upper="false">
+            <DT id="id" tpl="ID!=:ID" para="ID" npl="1=1"></DT>
+        </SQL>
+        <CHECK id="docheck" test="@num>0" succ="notadd" fail="doadd" attr="num"></CHECK>
+    </FUNC>
+    <!-- 新增功能 -->
+    <FUNC id="insert" tpl="{'err':'@doadd','check':'@docheck'}" attr="doadd,docheck" desc="新增">
+        <SQL id="getAddExists" tpl="select count(1) num from t_sys_function where FID=? " para="FID" storeVal="num" upper="false"></SQL>
+        <CHECK id="docheck" test="@num>0" succ="notadd" fail="doadd" attr="num"></CHECK>
+        <BAT id="doadd">
+            <DDL id="add1" tpl="insert into t_sys_function(FID,FNAME,PID,RESURL,GRADE,STATE,PRIORITY,TYPE,REMARK,ISLEAF,alias,actionType,CDATE,CREATOR,FTYPE) values (?,?,?,?,?,?,?,?,?,?,?,?,now(),?,?)" genId="id"
+                para="FID,FNAME,PID,RESURL,GRADE,STATE,PRIORITY,TYPE,REMARK,ISLEAF,alias,actionType,addUser,FTYPE">
+            </DDL>
+        </BAT>
+    </FUNC>
+
+    <!-- 编辑功能 -->
+    <FUNC id="update" tpl="{'err':'@edt','check':'@docheck'}" attr="edt,docheck" desc="编辑">
+        <SQL id="getEditExists" tpl="select 1 num from t_sys_function where ID=? and FID!=? " para="ID,FID" storeVal="num" upper="false"></SQL>
+        <CHECK id="docheck" test="@num>0" succ="notedt" fail="edt" attr="num"></CHECK>
+        <DDL id="edt" tpl="update t_sys_function set FID=? ,FNAME=? ,PID=? ,RESURL=? ,GRADE=? ,STATE=? ,PRIORITY=?,TYPE=? ,REMARK=? ,ISLEAF=? ,alias=? ,actionType=?,CDATE=now(),CREATOR=? where ID = ? "
+            para="FID,FNAME,PID,RESURL,GRADE,STATE,PRIORITY,TYPE,REMARK,ISLEAF,alias,actionType,lmdfUser,ID">
+        </DDL>
+    </FUNC>
+
+    <!-- 删除功能 -->
+    <FUNC id="del" tpl="{'err':'@del3'}" attr="del3" desc="删除">
+        <BAT id="del3">
+            <DDL id="del2" tpl="delete from t_sys_function where @ID">
+                <DT id="ID" tpl="ID in (:ID)" para="ID"></DT>
+            </DDL>
+        </BAT>
+    </FUNC>
+
+    <!-- 导出功能 -->
+    <EXP id="down" desc="菜单列表导出" fileName="菜单列表.xls" type="XLS" tpl="FID:菜单编号,FNAME:菜单名称,RESURL:菜单路径
+				,GRADE:层级,STATE:状态,PRIORITY:排序,REMARK:备注">
+        <SQL id="getdata" desc="菜单列表导出" tpl="select b.ID,b.FID,b.FNAME,b.PID,b.RESURL
+				,b.GRADE,b.FTYPE,b.STATE,b.PRIORITY,b.ICON
+				,b.SPREAD,b.CODE,b.CDATE,b.CREATOR,b.TYPE
+				,b.REMARK,b.ISLEAF,b.chanId,b.alias,b.actionType from t_sys_function b 
+            where FTYPE='page' and @key order by b.ID desc"
+             trans="STATE@IS_STATE,TYPE@MENU_TYPE,GRADE@menuGrade">
+
+            <DT id="key" tpl="(b.FID like '%:params%' or b.FNAME like '%:params%' or b.RESURL like '%:params%' or b.PRIORITY like '%:params%' or b.REMARK like '%:params%')" npl="1=1" para="params"></DT>
+        </SQL>
+    </EXP>
+
+    <!-- 扩展配置 -->
+
+</MOD>

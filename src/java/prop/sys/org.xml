@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MOD id="sysorg" desc="组织机构">
+
+    <!-- 基础配置 -->
+
+    <!-- 列表数据页 -->
+    <PAGE id="list" path="page/admin/sys/org/list.jsp" desc="列表数据"></PAGE>
+    <DATA id="dl" desc = "数据列表">
+        <SQL id="getlist" desc="查询数据" upper="false" tpl="select b.*,
+            (select name from t_sys_org where orgCode=b.parentCode)as parentCodeName from t_sys_org b
+            where @key">
+            <DT id="key" tpl="(b.orgCode like '%:key%' or b.name like '%:key%' or b.parentCode like '%:key%' or b.remark like '%:key%' or b.addUser like '%:key%' or b.lmdfUser like '%:key%')" npl="1=1" para="key"></DT>
+        </SQL>
+    </DATA>
+    <DATA id="dll" desc = "数据列表">
+        <SQL id="getlist" desc="查询数据" upper="false" tpl="select b.id,b.orgCode,b.name,b.parentCode,b.remark,b.sortNum,b.isLock,b.addUser,b.addTime,b.lmdfUser,b.lmdfTime from t_sys_org b">
+        </SQL>
+    </DATA>
+    <!-- 新增页 -->
+    <PAGE id="add" desc="新增" path="page/admin/sys/org/au.jsp">
+        <SQL id="org" upper="false" tpl="select * from t_sys_org where isLock=0"></SQL>
+        <SQL id="roleCodeList" upper="false" tpl="select id,prmKey,prmValue,prmDesc from t_sys_params where prmCode='roleCode' and islock=0"></SQL>
+    </PAGE>
+
+    <!-- 修改页 -->
+    <PAGE id="edit" path="page/admin/sys/org/au.jsp" desc="修改">
+        <SQL id="org" upper="false" tpl="select * from t_sys_org where id!=?" para="id"></SQL>
+        <SQL id="getSingle" tpl="select * from t_sys_org b where id = ?" para="id" storeRow="1" upper="false"></SQL>
+        <SQL id="roleCodeList" upper="false" tpl="select id,prmKey,prmValue,prmDesc from t_sys_params where prmCode='roleCode' and islock=0"></SQL>
+    </PAGE>
+
+    <!-- 详情页 -->
+    <PAGE id="view" path="page/admin/sys/org/detl.jsp" desc="详情">
+        <SQL id="getSingle" tpl="select b.*,
+            (select prmDesc from t_sys_params where prmCode='roleCode' and islock=0 and prmValue=b.orgType) typeName,
+            (select name from t_sys_org where orgCode=b.parentCode)as parentCodeName from t_sys_org b where @id" upper="false" storeRow="1">
+            <DT id="id" tpl="id=':id'" para="id"></DT>
+        </SQL>
+    </PAGE>
+
+    <FUNC id="update" tpl="{'err':'@edit','check':'@ack'}" attr="edit,ack" desc="修改数据">
+        <SQL tpl="select count(id) id from t_sys_org where id !=? and orgCode =?" para="id,orgCode" storeVal="id" upper="false">
+            <DT id="scenicId" tpl="scenic_id=':scenic_id'" para="scenic_id" npl="1=1"></DT>
+        </SQL>
+        <CHECK id="ack" test="@id>0" succ="aa" fail="edit" attr="id"></CHECK>
+        <DDL id="edit" tpl="update t_sys_org set orgCode=?,name=?,parentCode=?,isLeaf=?,remark=?,sortNum=1,isLock=?,addUser=?,addTime=?,lmdfUser=?,lmdfTime=? where id=?"
+              para="orgCode,name,parentCode,isLeaf,remark,isLock,addUser,addTime,lmdfUser,lmdfTime,id"></DDL>
+    </FUNC>
+    <FUNC id="insert" tpl="{'err':'@add01','check':'@ack'}" attr="add01,ack" desc="添加数据">
+        <SQL tpl="select count(id) id from t_sys_org where isLock=0 and orgCode =?" para="orgCode" storeVal="id" upper="false">
+        </SQL>
+        <CHECK id="ack" test="@id>0" succ="aa" fail="add01" attr="id"></CHECK>
+        <DDL id="add01" tpl="insert into t_sys_org(orgCode,name,parentCode,isLeaf,remark,sortNum,isLock,addUser,addTime,lmdfUser,lmdfTime)values(?,?,?,0,?,1,?,?,?,?,?)" genId="id"
+             para="orgCode,name,parentCode,remark,isLock,addUser,addTime,lmdfUser,lmdfTime">
+        </DDL>
+    </FUNC>
+
+    <!-- 删除功能 -->
+    <FUNC id="del" tpl="{'err':'@del3'}" attr="del3" desc="删除">
+        <BAT id="del3">
+            <DDL id="del2" tpl="delete from t_sys_org where id in (?)" para="id"></DDL>
+        </BAT>
+    </FUNC>
+
+    <!-- 导出功能 -->
+    <EXP id="down" desc="列表导出" fileName="组织机构.xls" type="XLS" tpl="ID:自增ID,ORGCODE:组织代码,NAME:组织名称,PARENTCODE:上级组织代码,REMARK:备注说明
+				,SORTNUM:排序,ISLOCK:隐藏,ADDUSER:添加用户">
+        <SQL id="getdata" desc="查询"
+             tpl="select b.id,b.orgCode,b.name,b.parentCode,(select name from t_sys_org where orgCode=b.parentCode)as parentCodeName,b.remark,b.sortNum,b.isLock,b.addUser,b.addTime,b.lmdfUser,b.lmdfTime from t_sys_org b
+            where @orgCode and @name and @parentCode and @remark
+				 and @sortNum and @isLock and @addUser and @addTime and @lmdfUser
+				 and @lmdfTime and @key order by sortNum" trans="ISLOCK@whether">
+            <DT id="orgCode" tpl="b.orgCode =:orgCode" para="orgCode"></DT>
+            <DT id="name" tpl="b.name =:name" para="name"></DT>
+            <DT id="parentCode" tpl="b.parentCode =:parentCode" para="parentCode"></DT>
+            <DT id="remark" tpl="b.remark =:remark" para="remark"></DT>
+            <DT id="sortNum" tpl="b.sortNum =:sortNum" para="sortNum"></DT>
+            <DT id="isLock" tpl="b.isLock =:isLock" para="isLock"></DT>
+            <DT id="addUser" tpl="b.addUser =:addUser" para="addUser"></DT>
+            <DT id="addTime" tpl="b.addTime between ':baddTime' and ':eaddTime'" para="baddTime,eaddTime" npl="1=1" inst="DATE_FORMAT,SYSDATE,MDATE" preproc="SYSDATE,MDATE"></DT>
+            <DT id="lmdfUser" tpl="b.lmdfUser =:lmdfUser" para="lmdfUser"></DT>
+            <DT id="lmdfTime" tpl="b.lmdfTime between ':blmdfTime' and ':elmdfTime'" para="blmdfTime,elmdfTime" npl="1=1" inst="DATE_FORMAT,SYSDATE,MDATE" preproc="SYSDATE,MDATE"></DT>
+            <DT id="key" tpl="(b.orgCode like '%:key%' or b.name like '%:key%' or b.parentCode like '%:key%' or b.remark like '%:key%' or b.addUser like '%:key%' or b.lmdfUser like '%:key%')" npl="1=1" para="keyword"></DT>
+        </SQL>
+    </EXP>
+ <!-- <DATA id="orgDatalist" desc="加载组织子节点数据">
+        <SQL id="olistsql" tpl="select * from t_sys_org where @pid">
+            <DT id="pid" tpl="orgCode =':orgCode'" para="orgCode" npl="orgCode = 1122"></DT>
+             <DT id="keyword" tpl="(auth_name like '%:keyword%' or pid like '%:keyword%')" para="keyword"></DT>
+             <DT id="timer" para="startime,endtime" tpl="cdate between ':startime' and ':endtime'"></DT>
+            </SQL>
+        </DATA>-->
+    <DATA id="orgGetList" desc="字数">
+        <SQL id="get" tpl="select b.*,(select name from t_sys_org where orgCode=b.parentCode)as parentCodeName from t_sys_org b where find_in_set(orgcode,getChildOrgLst(@id))" upper="false">
+            <DT id="id" tpl="':parentCode'" para="parentCode" npl="parentCode=0"></DT>
+        </SQL>
+    </DATA>
+    <!-- 扩展配置 -->
+    <DATA id="loadAPIListData"  source="data" desc="加载API列表" >
+        <SQL id="hlist"  upper="false"   tpl="select * from t_sys_org where isLock=0" >
+        </SQL>
+        <TREE id="data" source="hlist" pid="parentCode" nid="orgCode" nodeName="children" tval="0"></TREE>
+    </DATA>
+</MOD>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MOD id="role" desc="角色管理">
+    <PAGE id="rolePage" path="page/admin/sys/role/rolePage.jsp" desc="角色管理"></PAGE>
+    <PAGE id="roleEdit" path="page/admin/sys/role/roleAdd.jsp" desc="编辑角色">
+        <SQL id="DATA" tpl="select * from t_sys_role where rid=? " storeRow="1" para="id"></SQL>
+    </PAGE> 
+    <DATA id="rlist" desc="加载权限数据">
+        <SQL id="rlist1" tpl="select * from t_sys_role" upper="false"></SQL>
+    </DATA>
+    <DATA id="rolesList" desc="加载角色列表数据">
+        <SQL id='rlist' tpl="SELECT rid,rcode,rname,remark,stat,creator,cdate,(SELECT count(ur.uid) from t_sys_user_role ur where ur.rid = r.rid) unum,
+        (select count(rf.id) from t_sys_role_function rf where rf.rid = r.rid) fnum from t_sys_role r where
+            orgId = (SELECT orgId from t_sys_user where userid='$sysUsrId') and @rname" inst='sysUsrId' trans="STAT@usrStatu">
+            <DT id="rname" para="keyword" tpl=" (r.rname like '%:keyword%' or r.rcode like '%:keyword%')"></DT>
+        </SQL>
+    </DATA>
+    <!--新增角色-->
+    <FUNC id="addrole" tpl="{'err':'@add01','check':'@ack'}" attr="add01,ack" desc="新增角色功能">
+        <SQL id="dmm" tpl="SELECT count(rid) rid from t_sys_role where rcode=?" para="rcode" storeVal="rid" upper="false"></SQL>
+        <CHECK id="ack" test="@rid> 0" succ="aa" fail="add01" attr="rid"></CHECK>
+        <DDL id="add01" tpl="insert into t_sys_role (rcode,orgId,rname,remark,stat,creator,cdate) values (?,'$orgId',?,?,1,'$sysUsrId',now())" 
+             para="rcode,rname,remark" inst="sysUsrId,orgId">
+        </DDL>
+    </FUNC>
+    <!--编辑角色-->
+    <FUNC id="editrole" tpl="{'err':'@edit01','check':'@ack'}" attr="edit01,ack" desc="编辑角色功能">
+        <SQL id="dmm" tpl="SELECT count(rid) rid from t_sys_role where rcode=? and rid!=?" para="rcode,rid" storeVal="rid" upper="false"></SQL>
+        <CHECK id="ack" test="@rid> 0" succ="aa" fail="edit01" attr="rid"></CHECK>
+        <DDL id="edit01" tpl="update t_sys_role set rname =?,rcode=?, remark=? where rid=? " para="rname,rcode,remark,rid"></DDL>
+    </FUNC>
+    <!-- 删除一个角色 -->
+    <FUNC id="delrole" tpl="{'err':0,'id':@del1}" attr="del1" desc="删除角色功能">
+        <DDL id="del1" tpl="delete from t_sys_role where rid =?" para="rid"></DDL>
+    </FUNC>
+    <PAGE id="userwh" path="page/admin/sys/role/role_userwh.jsp" desc="用户授权角色"></PAGE>
+    <DATA id="userwhlist" desc="加载用户授权角色数据">
+       <SQL id="valet_iden" tpl="select a.*,case when (b.uid !=null or b.uid !='') then 1 else 0 end LAY_CHECKED from (SELECT uid,userid,uname,rname,lst_date,stat,stype,(select name from t_sys_org where
+                            orgCode = s.orgId) vpath FROM t_sys_user s where orgId in (select orgCode from t_sys_org where parentCode=(select orgId from t_sys_user where userid='$sysUsrId')) or orgId=(select orgId from
+                            t_sys_user where userid='$sysUsrId')) a LEFT JOIN (SELECT uid from t_sys_user_role where rid=?) b ON a.uid=b.uid" inst="sysUsrId" upper="false"
+             trans="STAT@usrStatu,stype@uStype" para="rid">
+        </SQL>
+    </DATA>
+    <FUNC id="urole" tpl="{'err':'@userRole'}" attr="userRole" desc="编辑用户授权角色功能">
+        <CLZZ exec="com.faster.buzz.RoleBuzz->userRole" tpl="1"></CLZZ>
+    </FUNC>
+    <FUNC id="rolefunc" desc="编辑角色维护功能">
+        <CLZZ exec="com.faster.buzz.RoleBuzz->updateRole" tpl="1"></CLZZ>
+    </FUNC>
+    <PAGE id="rolewh" path="page/admin/sys/role/rolewh.jsp" desc="角色维护">
+        <SQL id="datalist" tpl="select * from t_sys_function where rid =0"></SQL>
+        <!--<SQL id="sq1" tpl="SELECT a.id,a.fid,a.fname,a.pid,getParentNameList(b.fid) pname,b.rfid rfid from t_sys_function a ,
+                          (SELECT aa.rid,aa.fid,aa.pid,bb.fid rfid from (select rid,fid,pid from t_sys_role_function where rid in (select rid from t_sys_user_role where uid='$uid' ) and type=0) aa LEFT JOIN 
+                             (select rid,fid,pid from t_sys_role_function where rid=? and type=0) bb on  bb.fid =aa.fid GROUP BY fid,rid) b where b.fid =a.fid and a.type=0 and a.grade=3 and a.state=1 
+                            order by a.pid,a.fid"  para="rid" inst="uid">
+        </SQL>
+        <SQL id="sq2" tpl="SELECT fa.*,rf.fid cfid FROM t_sys_function fa LEFT JOIN t_sys_role_function rf on rf.iid=fa.fid and rf.rid=?" para="rid"></SQL>
+        <JOIN id="datalist" master="sq1" mstKey="FID" slave="sq2" mlvKey="PID" cacheKey="GDATA"></JOIN>-->
+    </PAGE>
+    <PAGE id="adminrolewh" path="page/admin/sys/role/rolewh.jsp" desc="角色维护">
+        <SQL id="datalist" tpl="select a.*,b.id as frid from t_sys_function a left join t_sys_role_function b on a.fid=b.fid where a.STATE=1 order by a.PRIORITY"></SQL>
+        <SQL id="datalist1" tpl="select * from t_sys_role_function where rid in(select rid from t_sys_user_role where uid in(select uid from t_sys_user where userid='$sysUsrId'))" inst="sysUsrId"></SQL>
+        <!--<SQL id="sq1" tpl="SELECT a.id,a.fid,a.fname,a.pid,getParentNameList(a.fid) pname,c.fid rfid from t_sys_function a
+             LEFT JOIN (SELECT * from t_sys_role_function where rid =? GROUP BY fid) c ON c.fid = a.fid  where a.type=0 and a.state=1 and isleaf=1 order by pname" para="rid">
+        </SQL>
+        <SQL id="sq2" tpl="SELECT fa.*,rf.fid cfid FROM t_sys_function fa LEFT JOIN (select * from t_sys_role_function where rid=?) rf on rf.fid=fa.fid where fa.state =1 and fa.grade=4" para="rid"></SQL>
+        <JOIN id="datalist" master="sq1" mstKey="FID" slave="sq2" mlvKey="PID" cacheKey="GDATA"></JOIN>-->
+    </PAGE>
+    <PAGE id="adminrolewhMore" path="page/admin/sys/role/rolewh.jsp" desc="角色维护">
+        <SQL id="sq1" tpl="SELECT a.id,a.fid,a.fname,a.pid,getParentNameList(a.fid) pname,'' rfid from t_sys_function a where a.type=0 and a.state=1 and a.grade=3 order by a.pid"></SQL>
+        <SQL id="sq2" tpl="SELECT fa.*,'' cfid FROM t_sys_function fa where fa.state =1"></SQL>
+        <JOIN id="datalist" master="sq1" mstKey="FID" slave="sq2" mlvKey="PID" cacheKey="GDATA"></JOIN>
+    </PAGE>
+    <DATA id="menuList" source="data" desc="功能菜单列表">
+        <SQL id="mlist" tpl="select sf.*,rf.iid roleFid,rf.rid roleRid,sf.iid value,sf.iname title,case when (rf.rid !=null or rf.rid !='') then 1 else 0 end checked 
+                        from t_sys_interface_info sf LEFT JOIN t_sys_role_function rf on sf.iid = rf.iid and rf.rid=?" upper="false" para="rid">
+        </SQL>
+        <TREE id="data" source="mlist" pid="pid" nid="iid" nodeName ="data" tval="-1"></TREE>
+    </DATA>
+    <!--    <DATA id="menuList" source="data" desc="功能菜单列表">
+        <SQL id="mlist" tpl="select sf.*,rf.iid roleFid,rf.rid roleRid,sf.iid value,sf.iname title,case when (rf.rid !=null or rf.rid !='') then 1 else 0 end checked 
+                        from t_sys_interface_info sf LEFT JOIN t_sys_role_function rf on sf.iid = rf.iid and rf.rid=?" upper="false" para="rid">
+        </SQL>
+        <TREE id="data" source="mlist" pid="pid" nid="iid" nodeName ="data" tval="-1"></TREE>
+    </DATA>-->
+    <!--功能授权开始-->
+ <!--   <FUNC id="updateFunc" tpl="{'err':@u3}" attr="u3" desc="更新菜单">
+            <BAT id="u3">
+                <DDL id="get" tpl="select f.rid from t_sys_user_role f where uid in (select u.uid from t_sys_user u where userid ='$sysUsrId')" storeVal="rid" upper="false"></DDL>
+                <DDL id="del" tpl="delete from t_sys_function where rid=@rid"></DDL>
+                <DDL id="u3" tpl="insert into t_sys_function (select null,fid,fname,pid,resurl,grade,ftype,state,priority,icon,spread,code,cdate,creator,type,remark,isleaf,chanid,alias,actiontype,@rid from t_sys_function where id in(?))" para="idd"></DDL>
+            </BAT>
+    </FUNC>-->
+    <DATA id="menuauth" source="data" desc="功能授权列表">
+        <SQL id="mlist" tpl="SELECT sf.id value,fid,fname title,pid,case when rf.iid = sf.id then 1 else 0 end checked  FROM `t_sys_function` sf  
+                            LEFT JOIN t_sys_role_function rf ON sf.id = rf.iid and rf.rid=? where sf.type=0 order by sf.id" upper="false" para="rid">
+        </SQL>
+        <TREE id="data" source="mlist" pid="pid" nid="fid" nodeName ="data" tval="-1"></TREE>
+    </DATA>
+    <DATA id="menuauth2" source="data" desc="功能授权列表">
+        <SQL id="mlist" tpl="SELECT t.*  from (SELECT a.id,a.fid,a.fname,a.pid,CONCAT_WS('/',(SELECT b.fname from t_sys_function b where b.fid = a.pid ),a.fname) pname from t_sys_function a where a.type=0 
+                    UNION all SELECT id,CONCAT('@',id),name,pid,pcode from t_sys_function_auth)  t" upper="false" para="rid">
+        </SQL>
+        <TREE id="data" source="mlist" pid="pid" nid="fid" nodeName ="data" tval="-1"></TREE>
+    </DATA>
+    <!--功能授权结束-->
+    <!--接口授权开始-->
+    <DATA id="interauth"  source="data" desc="接口授权列表">
+        <SQL id="mlist" tpl="SELECT sf.id value,fname title,sf.pid,case when (rf.iid = sf.id and ?='1') then 1 else 0 end checked  FROM `t_sys_function` sf  
+                            LEFT JOIN t_sys_role_function rf ON sf.id = rf.iid and rf.rid=? where sf.type=1 order by sf.id" upper="false" para="len,rid">
+        </SQL>
+        <TREE id="data" source="mlist" pid="pid" nid="value" nodeName ="data" tval="-2"></TREE>
+    </DATA>
+    <!--接口授权结束-->
+    <PAGE id="roleDetail" path="page/admin/sys/role/roleDetail.jsp" desc="查看角色详细信息">
+        <!--角色基本信息-->
+        <SQL id="DATA" tpl="select * from t_sys_role where rid=? " storeRow="1" para="rid" trans="STAT@usrStatu"></SQL>
+        <!--授权接口-->
+        <SQL id="interlist" tpl="SELECT GROUP_CONCAT(fname SEPARATOR '、') fname from t_sys_function a,t_sys_role_function b where b.rid=? and b.iid = a.id and a.type=1 " storeRow="1" para="rid"></SQL>
+        <!--授权用户-->
+        <SQL id="loadUser" tpl="SELECT o.name vname,GROUP_CONCAT(u.userid,' (',u.rname,') ' SEPARATOR '、') ulist from t_sys_user_role r,t_sys_user u,t_sys_org o
+                    where r.rid =? and u.uid = r.uid and o.orgCode=u.orgId GROUP BY o.orgCode;" para="rid">
+        </SQL>
+        <SQL id="s1" tpl="SELECT *,(select GROUP_CONCAT(fname SEPARATOR '/') pname from t_sys_function where  FIND_IN_SET(fid, getParentList(rf.fid))) mname from t_sys_role_function rf where rf.rid=?  GROUP BY rf.fid" para="rid"></SQL>
+        <SQL id="s2" tpl="SELECT rf.*,au.`name` from t_sys_role_function rf,t_sys_function_auth au where rf.rid=? and rf.iid = au.id" para="rid"></SQL>
+        <JOIN id="funclist" master="s1" mstKey="FID" slave="s2" mlvKey="FID" cacheKey="GDATA"></JOIN>
+        <!--授权功能-->
+    </PAGE>
+    <PAGE id="bindOne" path="page/admin/sys/role/roleBindOne.jsp" desc="未绑定该角色的用户"></PAGE>
+    <DATA id="bindOneList" desc="加载未绑定该角色的用户数据">
+        <SQL id="ulist" tpl="SELECT uid,userid,uname,rname,lst_date,stat,stype,(select name from t_sys_org where orgCode = s.orgId) vpath FROM
+                        t_sys_user s where (orgId in (select orgCode from t_sys_org where parentCode=(select orgId from t_sys_user where userid='$sysUsrId')) or
+                        orgId=(select orgId from t_sys_user where userid='$sysUsrId'))
+                        and s.uid not in(select uid from t_sys_user_role where rid=?) and s.stat =1 and @keyword" trans="stype@uStype" para="rid" inst="sysUsrId" upper="false">
+            <DT id="keyword" para="keyword" tpl=" (a.userid like '%:keyword%' or a.uname like '%:keyword%' or a.rname like '%:keyword%')"></DT>
+        </SQL>
+    </DATA>
+    <FUNC id="instOneRole" tpl="{'err':'@errcode'}" attr="errcode" desc="绑定单个角色的用户">
+        <CLZZ exec="com.faster.buzz.RoleBuzz->instOneRole" tpl="1"></CLZZ>
+    </FUNC>
+    <PAGE id="bindMore" path="page/admin/sys/role/roleBindMore.jsp" desc="绑定该角色的用户"></PAGE>
+    <DATA id="bindMoreList" desc="加载绑定该角色的用户数据">
+        <SQL id="ulist" tpl="SELECT uid,userid,uname,rname,lst_date,stat,stype,(select name from t_sys_org where orgCode = s.orgId) vpath FROM
+                        t_sys_user s where (orgId in (select orgCode from t_sys_org where parentCode=(select orgId from t_sys_user where userid='$sysUsrId')) or
+                        orgId=(select orgId from t_sys_user where userid='$sysUsrId')) and s.stat =1 and @keyword" trans="stype@uStype" upper="false"  inst="sysUsrId">
+            <DT id="keyword" para="keyword" tpl=" (s.userid like '%:keyword%' or s.uname like '%:keyword%' or s.rname like '%:keyword%')"></DT>
+        </SQL>
+    </DATA>
+    <FUNC id="instMoreRole" tpl="{'err':'@rfunc'}" attr="rfunc" desc="绑定多个角色的用户">
+        <CLZZ exec="com.faster.buzz.RoleBuzz->instMoreRole" tpl="1"></CLZZ>
+    </FUNC>
+    
+    <FUNC id="enable" tpl="{'err':'@e01'}" attr="e01"  desc="启用">
+        <DDL id="e01" tpl="update t_sys_role set stat = '1' where rid = ?" para="id"></DDL>
+    </FUNC>
+    
+    <FUNC id="disable" tpl="{'err':'@e01'}" attr="e01" desc="禁用">
+        <DDL id="e01" tpl="update t_sys_role set stat = '0' where rid = ?" para="id"></DDL>
+    </FUNC>
+
+    <EXP id="down" desc="列表导出" fileName="角色列表.xls" type="XLS" tpl="RID:编号,RCODE:角色编码,RNAME:角色名称,REMARK:角色描述,UNUM:已授权用户数,FNUM:已拥有功能数,STAT:状态,CREATOR:创建人,CDATE:创建时间">
+        <SQL id="getdata" desc="查询" tpl="select a.rid,a.rcode,a.rname,a.remark,(SELECT count(ur.uid) from t_sys_user_role ur where ur.rid = a.rid) unum,
+        (select count(rf.id) from t_sys_role_function rf where rf.rid = a.rid) fnum,case when stat=1 then '启用' else '禁用' end as stat,a.creator,a.cdate from t_sys_role a where @rname">
+            <DT id="rname" para="keyword" tpl=" (a.rname like '%:keyword%' or a.rcode like '%:keyword%')"></DT>
+        </SQL>
+    </EXP>
+</MOD>
+

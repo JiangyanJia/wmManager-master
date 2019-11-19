@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MOD id="sysarea" desc="行政区域">
+
+    <!-- 基础配置 -->
+
+    <!-- 列表数据页 -->
+    <PAGE id="list" path="page/admin/sys/area/list.jsp" desc="列表数据"></PAGE>
+    <DATA id="dl" desc = "数据列表">
+        <SQL id="getlist" desc="查询数据" upper="false" tpl="select b.id,b.areaCode,b.areaName,b.parentCode,b.sortNum
+				,b.lvl,b.postCode,b.lng,b.lat,b.isLock
+				,b.remark,b.addUser,b.addTime,b.lmdfUser,b.lmdfTime from sysarea b 
+            where @parentCode and @key order by sortNum" trans="isLock@whether,lvl@grade">
+
+            <DT id="parentCode" tpl="b.parentCode =:parentCode" para="parentCode"></DT>
+
+            <DT id="key" tpl="(b.areaCode like '%:params%' or b.areaName like '%:params%' or b.sortNum like '%:params%' or b.lvl like '%:params%' or b.postCode like '%:params%' or b.lng like '%:params%' or b.lat like '%:params%' or b.remark like '%:params%')" npl="1=1" para="params"></DT>
+        </SQL>
+    </DATA>
+
+    <!-- 新增页 -->
+    <PAGE id="add" desc="新增" path="page/admin/sys/area/au.jsp">
+        <SQL id="gradeList" tpl="select * from t_sys_params where prmCode='grade' and isLock=0" desc="加载等级参数" upper="false"></SQL>
+    </PAGE>
+
+    <!-- 修改页 -->
+    <PAGE id="edit" path="page/admin/sys/area/au.jsp" desc="修改">
+        <SQL id="getSingle" tpl="select b.id,b.areaCode,b.areaName,b.parentCode,(select s.areaName from sysarea s where s.areaCode=b.parentCode) parentName,b.sortNum
+				,b.lvl,b.postCode,b.lng,b.lat,b.isLock,b.remark,b.addUser,b.addTime,b.lmdfUser,b.lmdfTime from sysarea b where id = ?" para="id" storeRow="1" upper="false">
+        </SQL>
+        <SQL id="gradeList" tpl="select * from t_sys_params where prmCode='grade' and isLock=0" desc="加载等级参数" upper="false"></SQL>
+    </PAGE>
+
+    <!-- 详情页 -->
+    <PAGE id="view" path="page/admin/sys/area/detl.jsp" desc="详情">
+        <SQL id="getSingle" tpl="select b.id,b.areaCode,b.areaName,b.parentCode,(select s.areaName from sysarea s where s.areaCode=b.parentCode) parentName,b.sortNum
+				,b.lvl,b.postCode,b.lng,b.lat,b.isLock,b.remark,b.addUser,b.addTime,b.lmdfUser,b.lmdfTime from sysarea b where @id" upper="false" storeRow="1">
+            <DT id="id" tpl="id=':id'" para="id"></DT>
+        </SQL>
+        <SQL id="gradeList" tpl="select * from t_sys_params where prmCode='grade' and isLock=0" desc="加载等级参数" upper="false"></SQL>
+    </PAGE>
+
+    <!-- 新增功能 -->
+    <FUNC id="insert" tpl="{'err':'@add3','check':'@ack'}" attr="add3,ack" desc="新增">
+
+        <SQL id="dmm" tpl="select count(*) rid from sysarea b where b.areaCode=?" para="areaCode" storeVal="rid" upper="false"></SQL>
+
+        <CHECK id="ack" test="@rid> 0" fail="add3" succ="aa" attr="rid"></CHECK>
+
+        <BAT id="add3">
+            <DDL id="add1" tpl="insert into sysarea(areaCode,areaName,parentCode,sortNum,lvl,postCode,lng,lat,isLock,remark,addUser,addTime) values (?,?,?,?,?,?,?,?,?,?,?,now())" genId="id"
+                para="areaCode,areaName,parentCode,sortNum,lvl,postCode,lng,lat,isLock,remark,addUser">
+            </DDL>
+        </BAT>
+    </FUNC>
+
+    <!-- 编辑功能 -->
+    <FUNC id="update" tpl="{'err':'@edt','check':'@ack'}" attr="edt,ack" desc="编辑">
+
+        <SQL id="dmm" tpl="select count(*) rid from sysarea b where b.areaCode=? and b.id!=?" para="areaCode,id" storeVal="rid" upper="false"></SQL>
+
+        <CHECK id="ack" test="@rid> 0" fail="edt" succ="aa" attr="rid"></CHECK>
+
+            <DDL id="edt" tpl="update sysarea set areaCode=? ,areaName=? ,parentCode=? ,sortNum=? ,lvl=? ,postCode=? ,lng=? ,lat=? ,isLock=? ,remark=? ,lmdfUser=? ,lmdfTime=now() where id = ? "
+            para="areaCode,areaName,parentCode,sortNum,lvl,postCode,lng,lat,isLock,remark,lmdfUser,id">
+        </DDL>
+    </FUNC>
+
+    <!-- 删除功能 -->
+    <FUNC id="del" tpl="{'err':'@del3'}" attr="del3" desc="删除">
+        <BAT id="del3">
+            <DDL id="del2" tpl="delete from sysarea where @id">
+                <DT id="id" tpl="id in (:id)" para="id"></DT>
+            </DDL>
+        </BAT>
+    </FUNC>
+
+    <!-- 导出功能 -->
+    <EXP id="down" desc="列表导出" fileName="行政区域.xls" type="XLS" tpl="AREACODE:区域代码,AREANAME:区域名称,SORTNUM:排序
+				,LVENAME:等级,POSTCODE:邮政编码,LNG:经度,LAT:纬度,LOCAKNAME:隐藏
+				,REMARK:备注说明,ADDUSER:添加用户,ADDTIME:添加时间">
+        <SQL id="getdata" desc="查询" tpl="select b.id,b.areaCode,b.areaName,b.parentCode,b.sortNum
+				,b.lvl,(select s.prmValue from t_sys_params s where s.prmCode='grade' and s.prmKey=b.lvl) LVENAME,b.postCode,b.lng,b.lat,b.isLock
+				,(select s2.prmValue from t_sys_params s2 where s2.prmCode='whether' and s2.prmKey=b.isLock) LOCAKNAME
+				,b.remark,b.addUser,b.addTime,b.lmdfUser,b.lmdfTime from sysarea b 
+            where @parentCode and @key order by sortNum">
+
+            <DT id="parentCode" tpl="b.parentCode =:parentCode" para="parentCode"></DT>
+
+            <DT id="key" tpl="(b.areaCode like '%:params%' or b.areaName like '%:params%' or b.sortNum like '%:params%' or b.lvl like '%:params%' or b.postCode like '%:params%' or b.lng like '%:params%' or b.lat like '%:params%' or b.remark like '%:params%')" npl="1=1" para="params"></DT>
+        </SQL>
+    </EXP>
+
+    <!-- 扩展配置 -->
+
+    <!--<PAGE id="list2" path="page/admin/sys/area/test_tree.jsp" desc="列表数据"></PAGE>-->
+
+    <DATA id="arealist2"  source="data" desc="加载区域列表">
+        <SQL id="olistsql" tpl="select areaCode value,areaName title,s.parentCode pid,s.lvl grade from sysarea s where @lvl and @pid order by id asc" upper="false">
+            <DT id="pid" tpl=" s.parentCode =':pid'" para="pid" npl="1=1"></DT>
+            <DT id="lvl" tpl=" s.lvl =':lvl'" para="lvl" npl="1=1"></DT>
+        </SQL>
+        <TREE id="data" source="olistsql" pid="pid" nid="value" nodeName ="data" tval="0"></TREE>
+    </DATA>
+
+   <!-- <FUNC id="handleArealist"  attr="xtreeData" tpl="{'err':'@xtreeData'}" desc="点击异步加载菜单">
+        <CLZZ exec="com.faster.xtree.getXtreeData->getXtreeJson" tpl="1"></CLZZ>
+    </FUNC>-->
+
+<!--    <DATA id="arealist"  source="data" desc="加载区域列表">
+        <SQL id="olistsql" tpl="select areaCode value,areaName title,s.parentCode pid,s.lvl grade from sysarea s where @lvl and @pid order by id asc" upper="false">
+            <DT id="pid" tpl=" s.parentCode =':pid'" para="pid" npl="1=1"></DT>
+            <DT id="lvl" tpl=" s.lvl =':lvl'" para="lvl" npl="1=1"></DT>
+        </SQL>
+        <TREE id="data" source="olistsql" pid="pid" nid="value" nodeName ="data" tval="0"></TREE>
+    </DATA>-->
+
+    <DATA id="areaSublist"  source="data" desc="加载区域列表">
+        <SQL id="olistsql" tpl="select areaCode value,areaName title,s.parentCode pid,s.lvl grade from sysarea s where @lvl and @pid order by id asc" upper="false">
+            <DT id="pid" tpl=" s.parentCode =':pid'" para="pid" npl="1=1"></DT>
+            <DT id="lvl" tpl=" s.lvl =':lvl'" para="lvl" npl="1=1"></DT>
+        </SQL>
+        <TREE id="data" source="olistsql" pid="pid" nid="value" nodeName ="data" tval="-1"></TREE>
+    </DATA>
+
+
+    <DATA id="arealist"  source="data" desc="加载区域列表">
+        <SQL id="data" tpl="select b.areaCode Id ,b.areaName Name, b.parentCode PId,b.areaName Title,
+             concat('javascript:myOnClient(''',b.areaCode,''',''',b.areaName,''')') Url,
+             case when (exists(select 1 from sysarea dc where dc.parentCode=b.areaCode )) then 'true' else 'flase' end hc ,
+            'null' Target,'' Icon,'' OpenIcon
+            from sysarea b where @parentCode order by b.sortNum" upper="false">
+
+            <DT id="parentCode" tpl="parentCode =':pid'" para="pid"></DT>
+        </SQL>
+    </DATA>
+
+    <PAGE id="selectArea" desc="选择行政区域" path="page/admin/comm/area.jsp">
+
+    </PAGE>
+</MOD>

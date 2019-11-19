@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MOD id="auth" desc="功能录入">
+    <PAGE id="authpage" path="page/admin/sys/auth/authlist.jsp" desc="功能授权页面">
+        <SQL id="dlist" tpl="select fid from t_sys_function where grade=3 or pid=1"></SQL>
+    </PAGE>
+    <PAGE id="edit" path="page/admin/sys/auth/authedit.jsp" desc="编辑功能授权信息">
+        <SQL id="dmm" tpl="select *,getParentNameList(fid) pnames,(select fname from t_sys_function where fid=?) pname from t_sys_function where id=?" storeRow="1" para="fid,id"></SQL>
+        <SQL id="fun" tpl="select fname,fid,code from t_sys_function where fid=?" storeRow="1" para="pid"></SQL>
+    </PAGE>
+    <FUNC id="loadPid" tpl="@fid" attr="fid" desc="获取产品ID">
+        <SQL id="loadPid" tpl="select fid from t_sys_function where pid=3" upper="false"  storeColumn="fid"></SQL>
+    </FUNC>
+    <!--加载授权列表数据开始-->
+    <DATA id="authlist" desc="加载授权列表数据">
+        <!--<SQL tpl="select * from t_sys_function_auth where @pid and @spid">-->
+        <SQL tpl="select *,getParentNameList(fid) PNAME from t_sys_function where  @pid and @fname and state=1 and type=0">
+            <DT id="pid" tpl=" pid =':pid'" para="pid" npl="1!=1"></DT>
+            <DT id="fname" tpl=" fname like '%:keyword%'" para="keyword" npl="1=1"></DT>
+            <!--<DT id="spid" tpl=" pid in(SELECT fid from t_sys_function where pid=':spid')" para="spid"></DT>-->
+        </SQL>
+    </DATA>
+    <!--加载授权列表数据结束 update by lhh 添加过滤条件 ftype='page'-->
+    <DATA id="menulist"  source="data" desc="加载菜单列表">
+        <!--<SQL id="olistsql" tpl="SELECT fid value,fname title,pid,grade from t_sys_function where pid!=1 and fid!=1 and fid!=2 order by fid desc" upper="false"></SQL>-->
+        <SQL id="olistsql" tpl="SELECT fid value,fname title,pid,grade from t_sys_function where ftype='page' and grade !=4 and state=1 order by fid desc" upper="false"></SQL>
+        <TREE id="data" source="olistsql" pid="pid" nid="value" nodeName ="data" tval="-1"></TREE>
+    </DATA>
+    <DATA id="olist" desc="加载所属部门数据">
+        <SQL id="olistsql" tpl="select *,fid id,pid pId,fname name,'true' open from t_sys_function  order by fid desc" upper="false">
+        </SQL>
+        <!--        <SQL id="olistsql" tpl="select *,fid id,pid pId,fname name,'true' open from t_sys_function where pid!=1 and fid!=1 and fid!=2 and pid!=2 and 
+                            pid not in (select fid from t_sys_function where pid=2) order by fid desc" upper="false">
+        </SQL>-->
+    </DATA>
+    <FUNC id="insert" tpl="{'err':'@add2','check':'@ack'}" attr="add2,ack" desc="新增功能授权">
+        <SQL id="dmm" tpl="select count(code) _code  from t_sys_function where code=? and (code is not null and code !='')" para="code" storeVal="_code" upper="false"></SQL>
+        <SQL id="dmm2" tpl="select (max(fid)+1) mfid from t_sys_function" storeVal="mfid" upper="false"></SQL>
+        <CHECK id="ack" test="@_code > 0" succ="aa" fail="add2" attr="_code"></CHECK>
+        <DDL id="add2" tpl="insert into t_sys_function (fid,fname,pid,grade,ftype,priority,code,cdate,creator,type,remark) 
+            values(@mfid,?,?,?,'func',@mfid,?,now(),'$sysUsrId',0,?)" para="name,oid,grade,code,remark" attr="mfid"  inst="sysUsrId">
+        </DDL>
+    </FUNC>
+    <FUNC id="update" tpl="{'err':'@add01','check':'@ack'}" attr="add01,ack" desc="编辑功能授权">
+        <SQL id="dmm" tpl="select count(code) _code  from t_sys_function where code=? and id!=?" para="code,id" storeVal="_code" upper="false"></SQL>
+        <CHECK id="ack" test="@_code > 0" succ="aa" fail="add01" attr="_code"></CHECK>
+        <BK tableName="t_sys_function" pkey="id:id" prop="fname:name,code:code,pid:oid,remark:remark"></BK>
+        <DDL id="add01" tpl="update t_sys_function set fname=?,code=?,pid=?,remark=?,creator='$sysUsrId',cdate=now() where id=?" para="name,code,oid,remark,id" inst="sysUsrId"></DDL>
+    </FUNC>
+    <FUNC id="del" tpl="{'err':'@del01'}" attr="del01" desc="删除功能授权">
+        <DDL id="del01" tpl="delete from t_sys_function where id=?" para="id"></DDL>
+    </FUNC>
+</MOD>

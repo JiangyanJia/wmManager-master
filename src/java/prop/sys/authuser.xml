@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MOD id="authuser" desc="系统权限配置">
+
+    <!-- 基础配置 -->
+
+    <!-- 列表数据页 -->
+    <PAGE id="list" path="page/admin/sys/authuser/list.jsp" desc="列表数据"></PAGE>
+    <DATA id="dl" desc = "数据列表">
+        <SQL id="getlist" desc="查询数据" upper="false" tpl="select * from t_auth_user where stat=1 and @key order by cdate desc"
+             trans="stat@usrStatu,gender@SEX">
+
+            <DT id="key" tpl="userid like '%:params%'" npl="1=1" para="params"></DT>
+        </SQL>
+    </DATA>
+
+    <PAGE id="editAuthuser" var="scenicList" desc="跳转授权页面" path="page/admin/sys/authuser/edit.jsp">
+        <SQL id="getSingle" tpl="select * from t_auth_user where id=?" para="id" storeRow="1" upper="false"></SQL>
+        <SQL id="scenicList" tpl="select sid as value,title as name from fst_store where stype = 1 and status !=2" upper="false"></SQL>
+    </PAGE>
+
+    <FUNC id="updatePower" tpl="{'err':'@edit'}" attr="edit" desc="用户授权配置">
+        <BAT id="edit">
+            <DDL id="edit1" tpl="update t_auth_user set power=?,isType=? where id=?" para="power,isType,id">
+            </DDL>
+        </BAT>
+    </FUNC>
+</MOD>

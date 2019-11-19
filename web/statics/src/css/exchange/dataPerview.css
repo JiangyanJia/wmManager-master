@@ -1,0 +1,144 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 2018-7-16, 15:29:20
+    Author     : cmm
+*/
+
+.overview {
+    padding-bottom: 0px;
+}
+
+.overview .layui-card {
+    box-shadow: none !important;
+}
+
+.layui-card-body {
+    overflow: hidden;
+}
+
+.layui-card-header {
+    border-bottom: 1px solid #eee;
+}
+
+.overviewRow {
+    padding: 20px;
+    margin: auto;
+}
+
+.overviewItem {
+    border-left: 1px solid #ece3e3;
+    padding: 20px 0;
+    padding-left: 15px;
+}
+
+.overviewRow .col:first-child .overviewItem {
+    border-left: 0;
+}
+
+.overview .to-h3-m {
+    color: #000;
+    font-size: 15px;
+}
+
+.overview .number {
+    font-weight: 400;
+    font: 32px/47px arial;
+    color: #000;
+}
+
+.overview .unit {
+    font-weight: 400;
+    font-size: 14px;
+    color: #999;
+}
+
+.overview .describe {
+    color: #aaa;
+    float: left;
+    padding: 0 0 13px 2%;
+}
+
+.overview .describe2 {
+    color: #aaa;
+    float: left;
+    padding: 0 0 13px 2%;
+}
+
+.overview .descTitle {
+    font-size: 16px;
+    color: #000;
+    padding: 5px;
+    /*margin-bottom: 10px;*/
+}
+
+.layui-elem-quote {
+    margin-bottom: 30px;
+}
+
+.layui-quote2 {
+    margin-top: 67px;
+}
+
+.overview .numSpan {
+    width: 20px;
+    height: 20px;
+    border-radius: 25px;
+    border: 1px solid #999;
+    float: left;
+    margin-right: 5px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 20px;
+
+}
+
+.overview .describe2 .desc,
+.overview .describe .desc {
+    margin-left: 32px;
+    font-size: 12px;
+    color: #888;
+    width: 80%;
+}
+
+.clear {
+    clear: both;
+}
+
+.to-card{
+    padding: 1% 4% 0 4%;
+}
+
+.to-card:nth-child(2){
+    height: 160px;
+}
+.mar50{margin: 50px;}
+.table-card{    overflow: hidden;  box-shadow: 1px 1px 2px 2px #eee;    padding: 10px;  box-sizing: border-box;}
+/* 
+.to-card{
+    padding: 1% 4% 0 4%;
+}
+
+.to-card:nth-child(2){
+    height: 160px;
+}
+
+.to-h3-m{
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #888;
+}
+
+.number{
+    font-size: 28px;
+    color: #000;
+}
+
+.unit{
+    margin-left: 5px;
+}
+
+

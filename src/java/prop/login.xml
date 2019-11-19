@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MOD id="login" desc="系统登录">
+    <PAGE id="loginPage" path="page/views/login.jsp" desc="系统登录"></PAGE>
+    <FUNC id="loginClzz"  attr="loginclz" tpl="{'err':'@loginclz'}"  check="userName,password:pwd:密码验证" desc="登录校验">
+        <CLZZ exec="com.faster.buzz.LoginBuzz->login" tpl="1"></CLZZ>
+    </FUNC>
+
+    <!--<FUNC id="gislogin"  attr="loginclz" tpl="{'err':'@loginclz'}" require="userName"  check="userName:usr:用户名" desc="综合运营支撑登录校验">
+        <CLZZ exec="com.faster.buzz.LoginBuzz->gisLogin" tpl="1"></CLZZ>
+    </FUNC>-->
+
+    <FUNC id="gisWeblogin"  attr="loginclz" tpl="{'err':'@loginclz'}"  check="userName" desc="gis前台登录校验">
+        <CLZZ exec="com.faster.buzz.LoginBuzz->gisWebLogin" tpl="1"></CLZZ>
+    </FUNC>
+    <!--<PAGE id="loginIndex" path="/mm/page/views/login.jsp" desc="系统登录">-->
+    <!--<DATA id="menuList" desc="加载菜单列表">-->
+    <!--<SQL id="list" tpl="select u.*,ur.rid from t_sys_user u, t_sys_user_role ur where u.uid = ur.uid and @keyword and @roleId and @odate" trans="RID@roleList">-->
+    <!--</SQL>-->
+    <!--</DATA>-->
+    <!--</PAGE>-->
+    <FUNC id="loginOutClzz"  attr="loginoutclz" tpl="{'err':'@loginoutclz'}" desc="退出登录">
+        <CLZZ exec="com.faster.buzz.LoginBuzz->loginOut" tpl="1"></CLZZ>
+    </FUNC>
+    <PAGE id="basicMsg" path="page/views/basic.jsp" desc="基本信息">
+        <SQL id="dmm" tpl="select u.*,ur.rid from t_sys_user u, t_sys_user_role ur where u.uid = ur.uid and u.uid='$uid'" storeRow="1" user="uid" upper="false"></SQL>
+    </PAGE>
+    
+    <FUNC id="xcxLogin" attr="info" tpl="{'err':'@info'}"  desc="获取会员编号">
+        <CLZZ exec="com.faster.buzz.UserInfo->user" tpl="1"></CLZZ>
+    </FUNC>
+
+
+</MOD>

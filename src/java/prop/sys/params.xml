@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MOD id="sysparams" desc="系统参数">
+
+    <!-- 基础配置 -->
+
+    <!-- 列表数据页 -->
+    <PAGE id="list" path="page/admin/sys/params/list.jsp" desc="列表数据"></PAGE>
+    <DATA id="dl" desc = "数据列表">
+        <SQL id="getlist" desc="查询数据" upper="false" tpl="select b.id,b.prmKey,b.prmValue,b.prmCode,b.prmDesc
+				,b.sortNum,b.remark,b.islock,b.isSys,b.comId
+				,b.addUser,b.addTime,b.lmdfUser,b.lmdfTime from t_sys_params b
+            where @key order by sortNum" trans="islock@whether,isSys@whether">
+
+            <DT id="key" tpl="(b.prmKey like '%:params%' or b.prmValue like '%:params%' or b.prmCode like '%:params%' or b.prmDesc like '%:params%' or b.remark like '%:params%')" npl="1=1" para="params"></DT>
+        </SQL>
+    </DATA>
+
+    <!-- 新增页 -->
+    <PAGE id="add" desc="新增" path="page/admin/sys/params/au.jsp"></PAGE>
+
+    <!-- 修改页 -->
+    <PAGE id="edit" path="page/admin/sys/params/au.jsp" desc="修改">
+        <SQL id="getSingle" tpl="select b.id,b.prmKey,b.prmValue,b.prmCode,b.prmDesc
+				,b.sortNum,b.remark,b.islock,b.isSys,b.comId
+				,b.addUser,b.addTime,b.lmdfUser,b.lmdfTime from t_sys_params b where id = ?" para="id" storeRow="1" upper="false">
+        </SQL>
+    </PAGE>
+
+    <!-- 详情页 -->
+    <PAGE id="view" path="page/admin/sys/params/detl.jsp" desc="详情">
+        <SQL id="getSingle" tpl="select b.id,b.prmKey,b.prmValue,b.prmCode,b.prmDesc
+				,b.sortNum,b.remark,b.islock,b.isSys,b.comId
+				,b.addUser,b.addTime,b.lmdfUser,b.lmdfTime from t_sys_params b where @id" upper="false" storeRow="1">
+            <DT id="id" tpl="id=':id'" para="id"></DT>
+        </SQL>
+    </PAGE>
+
+    <!-- 新增功能 -->
+    <FUNC id="insert" tpl="{'err':'@add3','check':'@ack'}" attr="add3,ack" desc="新增">
+
+        <SQL id="dmm" tpl="select count(*) rid from t_sys_params b
+            where b.prmKey=? and b.prmCode=?" para="prmKey,prmCode" storeVal="rid" upper="false"></SQL>
+
+        <CHECK id="ack" test="@rid> 0" fail="add3" succ="aa" attr="rid"></CHECK>
+
+        <DDL id="add3" tpl="insert into t_sys_params(prmKey,prmValue,prmCode,prmDesc,sortNum,remark,islock,isSys,comId,addUser,addTime) values (?,?,?,?,?,?,?,?,?,?,now())" genId="id"
+            para="prmKey,prmValue,prmCode,prmDesc,sortNum,remark,islock,isSys,comId,addUser">
+        </DDL>
+    </FUNC>
+
+    <!-- 编辑功能 -->
+    <FUNC id="update" tpl="{'err':'@edt','check':'@ack'}" attr="edt,ack" desc="编辑">
+
+        <SQL id="dmm" tpl="select count(*) rid from t_sys_params b
+            where b.prmKey=? and b.prmCode=? and b.id!=?" para="prmKey,prmCode,id" storeVal="rid" upper="false"></SQL>
+
+        <CHECK id="ack" test="@rid> 0" fail="edt" succ="aa" attr="rid"></CHECK>
+
+        <DDL id="edt" tpl="update t_sys_params set prmKey=? ,prmValue=? ,prmCode=? ,prmDesc=? ,sortNum=? ,remark=? ,islock=? ,isSys=? ,comId=? ,lmdfUser=? ,lmdfTime=now() where id = ? "
+            para="prmKey,prmValue,prmCode,prmDesc,sortNum,remark,islock,isSys,comId,lmdfUser,id">
+        </DDL>
+    </FUNC>
+
+    <!-- 删除功能 -->
+    <FUNC id="del" tpl="{'err':'@del3'}" attr="del3" desc="删除">
+        <BAT id="del3">
+            <DDL id="del2" tpl="delete from t_sys_params where @id">
+                <DT id="id" tpl="id in (:id)" para="id"></DT>
+            </DDL>
+        </BAT>
+    </FUNC>
+
+    <!-- 导出功能 -->
+    <EXP id="down" desc="列表导出" fileName="系统参数.xls" type="XLS" tpl="PRMKEY:参数key,PRMVALUE:参数值,PRMCODE:类别代码,PRMDESC:描述
+				,SORTNUM:排序,REMARK:备注,SYSNAME:系统参数,LOCKNAME:隐藏">
+        <SQL id="getdata" desc="查询" tpl="select b.id,b.prmKey,b.prmValue,b.prmCode,b.prmDesc
+				,b.sortNum,b.remark,b.islock,(select s.prmValue from t_sys_params s where s.prmCode='whether' and s.prmKey=b.islock) LOCKNAME,
+				(select s2.prmValue from t_sys_params s2 where s2.prmCode='whether' and s2.prmKey=b.isSys) SYSNAME,b.isSys,b.comId
+				,b.addUser,b.addTime,b.lmdfUser,b.lmdfTime from t_sys_params b
+            where @key order by sortNum" trans="islock@whether,isSys@whether">
+
+            <DT id="key" tpl="(b.prmKey like '%:params%' or b.prmValue like '%:params%' or b.prmCode like '%:params%' or b.prmDesc like '%:params%' or b.remark like '%:params%')" npl="1=1" para="params"></DT>
+        </SQL>
+    </EXP>
+
+    <DATA id="getParamsList" desc = "获取参数下拉选项">
+        <SQL id="data" tpl="select prmKey,prmValue from t_sys_params p where p.prmCode=? and islock=0" upper="false" para="code"/>
+    </DATA>
+
+</MOD>

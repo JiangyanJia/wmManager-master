@@ -1,0 +1,84 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 2018-7-19, 10:23:51
+    Author     : cmm
+*/
+.btn-self{
+    height: 30px;
+    line-height: 30px;
+    border: 1px solid #C9C9C9;
+    background-color: #fff;
+    color: #555;
+    width: 94px;
+    border-radius: 2px;
+    cursor: pointer;
+}
+.btn-choose{
+    height: 30px;
+    line-height: 30px;
+    border: 1px solid #C9C9C9;
+    background-color: #009688;
+    color: #fff;
+    width: 94px;
+    border-radius: 2px;
+    cursor: pointer;
+}
+table[id=developInfor] td{
+    padding:20px;
+}
+
+table[id=developInfor] td:nth-child(odd){
+    width:205px;
+    font-size: 15px;
+}
+table[id=developInfor] td:nth-child(even) div:nth-child(even){
+    color: #ccc;
+    font-size: 10px;
+    margin-left: 25px;
+    width: 80%;
+}
+table[id=developInfor] td:nth-child(even) div:nth-child(odd){
+    margin-bottom: 8px;
+}
+table[id=serverConfig]{
+    width:100%;
+}
+table[id=serverConfig] td{
+    padding:20px;
+}
+table[id=serverConfig] td:nth-child(odd){
+    width:205px;
+    padding:20px;
+}
+table[id=serverConfig] td:nth-child(even){
+    padding:0 20px 20px 20px;
+}
+table[id=serverConfig] td:nth-child(even) div{
+    margin-left:0px;
+}
+table[id=serverConfig] td:nth-child(even) div input{
+    min-width:400px;
+    width:70%;
+}
+div[id=interInfor]{
+    margin:20px;
+}
+div[id=reViewbtns]{
+    float:left;
+}
+div[id=auditDiv] img{
+    width:70px;
+    height:70px;
+    float:right;
+}
+.clear{
+    clear:both;
+}
+  .flexbox{display:flex;line-height:30px}
+.flexbox p{display:inline-block;margin-right:40px}
+.flexbox p span{color:#666}
+.flexbox p .spanTit{padding:0px;color:#999}

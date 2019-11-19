@@ -1,0 +1,228 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 2018-9-5, 20:14:44
+    Author     : cb
+*/
+.layui-must-btn{
+    background-color: #23b7e5;
+}
+.fontSize12{
+    font-size:12px;
+}
+.color666{
+    color:#666;
+}
+.layui-form{margin:10px 0}
+.layui-form-mid{padding:0!important;padding-left:10px !important;line-height:28px;color:#999 !important}
+.layui-form-item .layui-input-inline {
+    width: 35%;
+    margin-right: 0;
+    margin-left: 15px;
+    height: auto;
+}
+.layui-btn-warm{
+    background-color:#23b7e5;
+    font-size:12px;
+}
+.layui-form-select dl dd{
+    color:#666 !important;
+    font-size:12px !important;
+}
+.layui-form-select dl dd.layui-this{
+    background-color:#23b7e5;
+    color:#fff !important;
+}
+.layui-form-checked span, .layui-form-checked:hover span,.layui-form-onswitch{
+    background-color:#23b7e5;
+}
+.layui-form-checked i, .layui-form-checked:hover i{
+    color:#23b7e5;
+}
+.layui-table-view .layui-table td, .layui-table-view .layui-table th {
+    /* padding: 5px 0; */
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+.layui-table-view .layui-table[lay-skin=line] {
+    border-width: 0 1px 0 0;
+}
+.layui-table-header {
+    border-width: 0 0 1px;
+    overflow: hidden;
+}
+.layui-table-box, .layui-table-view {
+    position: relative;
+    overflow: hidden;
+    border: none;
+}
+.layui-form-label {
+    padding: 1px 14px 1px 0;
+    font-size: 12px;
+    line-height: 22px;
+    color:#999;
+    width: 100px;
+}
+.layui-input {
+    height: 28px !important;
+    line-height: 28px !important;
+    font-size: 12px !important;
+    color:#666 !important;
+}
+.layui-form-radio *{
+    font-size:12px !important;
+    color:#666 !important;
+}
+.layui-form-radio{
+    margin:0px !important;
+}
+.layui-text {
+    line-height: 28px;
+    font-size: 12px;
+    color: #666;
+    border-color: #D2D2D2!important;
+    resize: none;
+    width: 100%;
+    height: 100%;
+}
+.layui-btn,.layui-input-inline {
+    height: 28px;
+    line-height: 28px;
+}
+.layui-btn{
+    background-color:#23b7e5;
+    font-size:12px !important;
+}
+.layui-btn-primary{
+    background-color:#fff !important;
+    color:#666 !important;
+}
+.layui-form-switch,.layui-form-checkbox[lay-skin=primary]{
+    margin-top:0px !important;
+}
+.layui-layer-btn .layui-layer-btn0{
+    background-color:#23b7e5 !important;
+    border-color:#23b7e5 !important;
+}
+.layui-input-block{
+    min-height:28px !important;
+    font-size:12px !important;
+    line-height:28px !important;
+}
+.layui-input-editor-block {
+    min-height: 28px !important;
+    font-size: 12px !important;
+}
+.layui-form-checkbox span{
+    font-size:12px !important;
+}
+.layui-elem-field legend {
+    margin-left: 20px;
+    padding: 0 10px;
+    font-size: 13px;
+    font-weight: 300;
+    color: #666;
+}
+.required-flag:before {
+    content: "*";
+    color: #ff4949;
+    margin-right: 4px;
+}
+#logo1Add{
+    display: none;
+}
+#cover1Add{
+    display: none;
+    margin-top: 100px;
+}
+#videoAdd{
+    display: none;
+    margin-top: 100px
+}
+.layui-form-item img{
+    cursor: pointer;
+}
+/*.layui-form-item img:hover{
+    transform-origin:0 0;
+    position: absolute;
+    transform: scale(2.0);
+    z-index: 99;
+}*/
+
+.uploader-list .file-iteme {
+    height:118px;
+    margin: 12px 0 0 15px;
+    padding: 1px;
+    float: left;
+    text-align:center;
+}
+
+.uploader-list .handle span {
+    margin-right: 5px;
+}
+
+.uploader-list .handle span:hover {
+    cursor: pointer;
+}
+
+.uploader-list .handle {
+    position: relative;
+    background-color: black;
+    color: white;
+    filter: alpha(Opacity=80);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+    width: 100px;
+    text-align: right;
+    height: 18px;
+    margin-bottom: -18px;
+    display: none;
+}
+
+.uploader-list .del-Img{
+    width: 100px;
+    text-align: center;
+    cursor: pointer;
+    top: 5px;
+    position: relative;
+}
+
+
+.uploader-list .info {
+    position: relative;
+    margin-top: -25px;
+    background-color: black;
+    color: white;
+    filter: alpha(Opacity=80);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+    width: 100px;
+    height: 25px;
+    text-align: center;
+    display: none;
+}
+.imgbox{
+    height:96px;
+}
+/*.uploader-list .file-iteme {
+    text-align:left;
+    width:100px;
+}*/
+img{
+    max-width: 600px;
+}
+.layui-textarea{
+    font-size:12px !important;
+    color:#333 !important;
+}
+.layui-form-checked[lay-skin=primary] i{
+    border-color: #23b7e5 !important;
+    background-color: #23b7e5 !important;
+}
+.layui-laypage .layui-laypage-curr .layui-laypage-em,.layui-progress-bar{
+    background-color: #23b7e5 !important;
+}

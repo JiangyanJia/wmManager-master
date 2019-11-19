@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+<Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+        <PatternLayout pattern="%d{HsH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+        <!--<KFLayout/>-->
+    </Console>
+    <!--<Kafka name="Kafka"  key="authz" topic="klog">
+        <KFLayout projName="authz"/>
+        &lt;!&ndash;<Property name="bootstrap.servers">kafka01:9092,kafka02:9092</Property>&ndash;&gt;
+        <Property name="bootstrap.servers">192.168.1.24:9092,192.168.1.23:9092,192.168.1.25:9092</Property>
+    </Kafka>-->
+</Appenders>
+<Loggers>
+    <Root level="debug">
+        <AppenderRef ref="Console" />
+        <!--<AppenderRef ref="Kafka"/>-->
+    </Root>
+</Loggers>
+</Configuration>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MOD id="index" desc="首页">
+    <PAGE id="showIndex" path="page/views/index.jsp" desc="首页展现">
+    </PAGE>
+
+    <!--顶部菜单-->
+    <DATA id="onelevelList">
+        <SQL id="list1" tpl="select fid,fid id,fname title,resurl url,icon,pid,grade,priority from t_sys_function where pid = -1
+        and fid in (SELECT fid from t_sys_role_function where rid in
+                    (select rid from t_sys_user_role where uid = '$uid') ) order by priority,fid asc" inst="uid" upper="false">
+        </SQL>
+    </DATA>
+
+
+    <!--左边栏目菜单  update lhh 添加过滤添加ftype='page'-->
+    <!--<DATA id="menulist1"  source="data" desc="加载菜单列表" p2a="pid">-->
+    <!--<SQL id="olistsql" tpl="SELECT fid value,fname title,resurl url,icon,pid,grade from t_sys_function where state=1 and grade &lt;4 and @pidd and fid in(select fid from t_sys_role_function where rid in(select f.rid from t_sys_user_role f where f.uid in(select u.uid from t_sys_user u where u.userid='$sysUsrId'))) and ftype='page' order by fid desc" inst="sysUsrId" upper="false" >-->
+    <!--<DT id="pidd" tpl="pid=':pid'" para="pid" ></DT>-->
+    <!--</SQL>-->
+    <!--<TREE id="data" source="olistsql" pid="pid" nid="value" nodeName ="children" tval="@pid" attr="pid"></TREE>-->
+    <!--</DATA>-->
+
+    <!--左边栏目菜单  update lhh 添加过滤添加ftype='page'-->
+    <DATA id="menulist"  source="data" desc="加载菜单列表" p2a="pid">
+        <SQL id="olistsql" tpl="SELECT fid value,fname title,resurl url,icon,pid,grade,priority from t_sys_function where state=1 and grade &lt;4 and fid in(select fid from t_sys_role_function where rid in(select f.rid from t_sys_user_role f where f.uid in(select u.uid from t_sys_user u where u.userid='$sysUsrId'))) and ftype='page' order by priority,value asc" inst="sysUsrId" upper="false"></SQL>
+        <TREE id="data" source="olistsql" pid="pid" nid="value" nodeName ="children" tval="@pid" attr="pid"></TREE>
+    </DATA>
+
+    <DATA id="menulist1"  source="data" desc="加载菜单列表">
+        <SQL id="olistsql" tpl="SELECT a.fid,a.fid value,a.fname title,a.resurl url,a.icon,a.pid,a.grade,a.ftype,case when b.id is null then false else true end as checked from t_sys_function a left join(select t.* from t_sys_role_function t where t.rid =?) b on a.FID=b.fid where a.state=1;" para="rid" upper="false"></SQL>
+        <TREE id="data" source="olistsql" pid="pid" nid="value" nodeName ="data" tval="-1"></TREE>
+    </DATA>
+
+    <PAGE id="indexlist" path="page/reportForm/app.jsp" desc="首页"></PAGE>
+
+</MOD>

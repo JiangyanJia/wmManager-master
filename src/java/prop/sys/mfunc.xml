@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MOD id="mfunc" desc="功能管理">
+    <PAGE id="mfuncpage" path="page/admin/sys/mfunc/mfunc.jsp"></PAGE>
+    <DATA id="mfunclist" source="data"  desc="加载功能管理数据">
+        <SQL id="dmm" tpl="select stype from t_sys_user where userid='$sysUsrId'" storeVal="stype" upper="false" inst="sysUsrId"></SQL>
+        <CHECK id="ack" test="@stype > 1" succ="other" fail="admin" attr="stype"></CHECK>
+        <SQL id="admin" var="data" tpl="SELECT * from (SELECT '2' grade,'2' gid,f.*,getParentNameList(f.fid) pname,GROUP_CONCAT(DISTINCT(sr.rname) SEPARATOR '、') rolelist from t_sys_role_function f 
+                        LEFT JOIN t_sys_role sr ON f.rid = sr.rid  where f.iid is null and f.type=0 GROUP BY f.fid,f.pid  UNION ALL
+                        SELECT '4' grade,'4' gid,f.*,getParentNameList(f.fid) pname,GROUP_CONCAT(DISTINCT(sr.rname) SEPARATOR '、') rolelist from t_sys_role_function f 
+                        LEFT JOIN t_sys_role sr ON f.rid = sr.rid  where f.iid is not null and f.type=0 GROUP BY f.fid,f.pid ) funclist ORDER BY pname" trans="GRADE@productType" inst="uid" end="true">
+            <DT id="keyword" tpl=" getParentNameList(f.fid) like '%:keyword%'" para="keyword" npl="1=1"></DT>
+        </SQL>
+        <SQL id="other" var="data" tpl="SELECT * from (SELECT '2' grade,'2' gid,f.*,getParentNameList(f.fid) pname,GROUP_CONCAT(DISTINCT(sr.rname) SEPARATOR '、') rolelist from t_sys_role_function f 
+                        LEFT JOIN t_sys_role sr ON f.rid = sr.rid  where f.iid is null and f.type=0 and f.rid in (SELECT rid from t_sys_user_role where uid = '$uid') GROUP BY f.fid,f.pid  UNION ALL
+                        SELECT '4' grade,'4' gid,f.*,getParentNameList(f.fid) pname,GROUP_CONCAT(DISTINCT(sr.rname) SEPARATOR '、') rolelist from t_sys_role_function f 
+                        LEFT JOIN t_sys_role sr ON f.rid = sr.rid  where f.iid is not null and f.type=0 and f.rid in (SELECT rid from t_sys_user_role where uid = '$uid') GROUP BY f.fid,f.pid ) funclist ORDER BY pname" trans="GRADE@productType" inst="uid" end="true">
+            <DT id="keyword" tpl=" getParentNameList(f.fid) like '%:keyword%'" para="keyword" npl="1=1"></DT>
+        </SQL>
+    </DATA>
+    <PAGE id="mfuncDetail" path="page/admin/sys/mfunc/mfuncDetail.jsp"></PAGE>
+    <PAGE id="mfuncRole" path="page/admin/sys/mfunc/mfuncRole.jsp"></PAGE>
+    <PAGE id="mfuncUnRole" path="page/admin/sys/mfunc/mfuncUnRole.jsp"></PAGE>
+    <DATA id="mfuncRolelist" desc="加载功能角色列表数据">
+        <SQL tpl="SELECT rid,rcode,rname,remark,stat,creator,cdate,(SELECT count(ur.uid) from t_sys_user_role ur where ur.rid = r.rid) unum,
+                (select count(rf.id) from t_sys_role_function rf where rf.rid = r.rid) fnum from t_sys_role r where 
+            orgId = (SELECT orgId from t_sys_user where userid='$sysUsrId') and r.stat=1" inst="sysUsrId">
+        </SQL>
+    </DATA>
+    <PAGE id="mfuncBindRole" path="page/admin/sys/mfunc/mfuncBindRole.jsp"></PAGE>
+    <PAGE id="mfuncBindRoleId" path="page/admin/sys/mfunc/mfuncBindRoleId.jsp"></PAGE>
+    <DATA id="mfuncBindRolelist" desc="加载未绑定的角色列表数据">
+        <SQL tpl="SELECT  rid,rcode,rname,remark,cdate,(select name from t_sys_org o where o.orgCode = r.orgId) vpath from t_sys_role r where orgId =
+        (SELECT orgId from t_sys_user where userid='$sysUsrId') and rid not in (select rid from t_sys_role_function where @fid and @pid and type=0 and iid is null) and @rname" inst="sysUsrId">
+            <DT id="fid" tpl=" fid =':fid'" para="fid" npl="1=1"></DT>
+            <DT id="pid" tpl=" pid =':pid'" para="pid" npl="1=1"></DT>
+            <DT id="rname" tpl=" rname =':keyword'" para="keyword" npl="1=1"></DT>
+        </SQL>
+    </DATA>
+    <DATA id="mfuncBindRoleIdlist" desc="加载未绑定的角色列表数据">
+        <SQL tpl="SELECT  rid,rcode,rname,remark,cdate,(select vpath from t_sys_org o where o.orgCode = r.orgId) vpath from t_sys_role r where orgId = (SELECT orgId from t_sys_user where userid='$sysUsrId') and r.rid
+            not in(select rid from t_sys_role_function where iid=? and fid =?  and pid=? and type=0)" para="iid,fid,pid" inst="sysUsrId">
+        </SQL>
+    </DATA>
+    <FUNC id="bindRole" tpl="{'err':'@bindRole'}" attr="bindRole" desc="绑定角色">
+        <CLZZ exec="com.faster.buzz.MfuncBuzz->bindRole" tpl="1"></CLZZ>
+    </FUNC>
+    <PAGE id="mfuncUnbindRole" path="page/admin/sys/mfunc/mfuncUnBindRole.jsp"></PAGE>
+    <PAGE id="mfuncUnbindRoleId" path="page/admin/sys/mfunc/mfuncUnBindRoleId.jsp"></PAGE>
+    <DATA id="mfuncUnBindRolelist" desc="加载绑定的角色列表数据">
+        <SQL tpl="SELECT rid,rcode,rname,remark,cdate,(select vpath from t_sys_org o where o.orgCode = r.orgId) vpath from t_sys_role r where orgId = (SELECT orgId from t_sys_user where userid='$sysUsrId')  and r.rid
+              in(select rid from t_sys_role_function where @fid and @pid and type=0 and iid is null) and @rname" inst="sysUsrId">
+            <DT id="fid" tpl=" fid =':fid'" para="fid" npl="1=1"></DT>
+            <DT id="pid" tpl=" pid =':pid'" para="pid" npl="1=1"></DT>
+            <DT id="rname" tpl=" rname =':keyword'" para="keyword" npl="1=1"></DT>
+        </SQL>
+    </DATA>
+    <DATA id="mfuncUnBindRoleIdlist" desc="加载绑定的角色列表数据">
+        <SQL tpl="SELECT  rid,rcode,rname,remark,cdate,(select vpath from t_sys_org o where o.orgCode = r.orgId) vpath from t_sys_role r where orgId = (SELECT orgId from t_sys_user where userid='$sysUsrId') and r.rid
+               in(select rid from t_sys_role_function where iid=? and fid =?  and pid=? and type=0 and iid is not null)" para="iid,fid,pid" inst="sysUsrId">
+        </SQL>
+    </DATA>
+    <FUNC id="unbindRole" tpl="{'err':'@unbindRole'}" attr="unbindRole" desc="解绑角色">
+        <CLZZ exec="com.faster.buzz.MfuncBuzz->unbindRole" tpl="1"></CLZZ>
+    </FUNC>
+    <FUNC id="bindMore" tpl="{'err':'@bindMore'}" attr="bindMore" desc="绑定多个角色">
+        <CLZZ exec="com.faster.buzz.MfuncBuzz->bindMore" tpl="1"></CLZZ>
+    </FUNC>
+    <FUNC id="unbindMore" tpl="{'err':'@unbindMore'}" attr="unbindMore" desc="解绑多个角色">
+        <CLZZ exec="com.faster.buzz.MfuncBuzz->unbindMore" tpl="1"></CLZZ>
+    </FUNC>
+</MOD>

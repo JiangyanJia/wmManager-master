@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MOD id="route" desc="路由配置">
+    <FUNC id="allRoute"  attr="allRoute" tpl="{'err':'@allRoute'}" desc="所有路由">
+        <CLZZ exec="com.faster.route.getRouteData->getRouteUrlJson" tpl="1"></CLZZ>
+    </FUNC>
+
+</MOD>

@@ -1,0 +1,87 @@
+<%-- any content can be specified here e.g.: --%>
+<%@ page pageEncoding="UTF-8" %>
+<script>
+    layui.use('form', function () {
+        var form = layui.form;
+        $("select[cmb]").each(function () {
+            var item = $(this);
+            var dval = $(this).attr("dval");
+            $.getJSON("${BASE}/cmb/" + $(this).attr("cmb"), function (res) {
+                var data = res.data;
+                var html = "";
+                for (var i in data) {
+                    var dx = data[i].id + "";
+                    if (dval === dx) {
+                        html += "<option value='" + dx + "' selected>" + data[i].val + "</option>";
+                    } else {
+                        html += "<option value='" + dx + "'>" + data[i].val + "</option>";
+                    }
+                }
+                item.append(html);
+                form.render('select');
+            });
+        });
+        $("select[uri]").each(function () {
+            var item = $(this);
+            var dval = $(this).attr("dval");
+            var url = $(this).attr("uri");
+            var item_key = $(this).attr("rkey");
+            var item_val = $(this).attr("rval");
+            if (item_key === undefined) {
+                item_key = "id";
+            }
+            if (item_val === undefined) {
+                item_val = "val";
+            }
+            $.getJSON(url, function (res) {
+                var data = res.data;
+                var html = "";
+                for (var i in data) {
+                    var dx = data[i][item_key] + "";
+                    if (dval === dx) {
+                        html += "<option value='" + dx + "' selected>" + data[i][item_val] + "</option>";
+                    } else {
+                        html += "<option value='" + dx + "'>" + data[i][item_val] + "</option>";
+                    }
+                }
+                item.append(html);
+                form.render('select');
+            });
+        });
+
+        var dataObj = new Object();
+        $("select[data-source]").each(function () {
+            var array = [];
+            $(this).find("option").each(function () {
+                array.push({val: $(this).val(), text: $(this).text(), sub: $(this).attr("data-sub")});
+            });
+            dataObj[$(this).attr("id")] = array;
+            $(this).change(function () {
+                recursion(this);
+            });
+        });
+
+        function recursion(thisp) {
+            var obj = $("select[data-sup=" + $(thisp).attr("data-sub") + "]");
+            if (obj.length === 0) {
+                return;
+            }
+            obj.find("option").remove();
+            var val = $(thisp).val();
+            $.each(dataObj[obj.attr("id")], function (index, value) {
+                if (value.sub == val) {
+                    obj.append("<option value='" + value.val + "'>" + value.text + "</option>");
+                }
+            });
+            if (obj.find("option").length === 0) {
+                obj.append("<option value=''>请选择</option>");
+            }
+            recursion(obj);
+        }
+
+        form.on('select(linkage)', function () {
+            recursion($(this).parent().parent().prev());
+            form.render('select');
+        });
+    });
+</script>

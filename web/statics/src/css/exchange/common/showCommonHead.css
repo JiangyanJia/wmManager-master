@@ -1,0 +1,122 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 2018-7-18, 14:42:40
+    Author     : cmm
+*/
+table[id=comShowInfor] td{
+    padding:10px;
+    border: 1px solid #e6e6e6;
+}
+table[id=comShowInfor] td:nth-child(odd){
+    text-align: right;
+}
+table[id=comShowInfor] td:nth-child(even){
+    width:200px;
+    text-align: left;
+}
+table[id=comShowInfor]{
+    margin:0;
+    text-align: center;
+}
+div[id=showApplyInfor] div[id=title]{
+    font-size: 10px;
+    font-weight: 300;
+    margin-bottom: 10px;
+    width:calc(80% + 20px);
+}
+div[id=showApplyInfor] .spanTit{
+    color: rgb(123, 123, 123);
+    padding: 20px 5px 20px 20px;
+    font-size: 12px;
+}
+div[id^=typeDetail] .typeDiv{
+    width: 80px;
+    height: 80px;
+    border-radius: 38px;
+    float: left;   
+    margin: 10px;
+}
+div[id^=typeDetail] .city{
+    background-color:rgb(139, 195, 74);
+}
+div[id^=typeDetail] .travel{
+    background-color:rgb(255, 64, 129);
+}
+div[id^=typeDetail] .typeSpan{
+    height: 80px;
+    line-height: 80px;
+    display: block;
+    color: #fff;
+    text-align: center;
+    font-size: 15px;
+}
+div[id^=typeDetail] .contentRight{
+    /*    width: calc(100% - 100px);*/
+    float: right;
+    font-size: 12px;
+}
+div[id^=typeDetail] .desc{
+    padding: 20px;
+    color: rgb(123, 123, 123);
+    font-size: 12px;
+}
+div[id^=typeDetail]{
+    margin:20px;
+    overflow: hidden;
+}
+.clear{
+    clear:both;
+}
+button[id=show]{
+    margin-left:70px;
+}
+button[id=stayBindModal]{
+    margin-left:70px;
+}
+button[id=bindModal]{
+    float:right;
+}
+/*优化新增样式*/
+.contentRight .title a{
+    font-size: 15px;
+    line-height: 24px;
+    display: block;
+    overflow: hidden;
+    width: 100%;
+    height: 24px;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-break: keep-all;
+    color: #666;}
+div[id^=typeDetail] .desc{font-size: 12px;line-height:24px;margin-top:15px;padding:0px;margin-bottom:20px;color:#333}
+.layui-elem-field legend{font: 14px Helvetica Neue, Helvetica, PingFang SC, \5FAE\8F6F\96C5\9ED1, Tahoma, Arial, sans-serif;}
+.tdtittle{
+    text-align: right;
+    color:#999;
+    font-size: 14px;
+    width: 15%;
+    min-width: 105px;
+}
+div[id=auditDiv] img{
+    width:70px;
+    height:70px;
+    float:right;
+}
+.flexbox{line-height:30px}
+.flexbox p{display:inline-block;margin-right:40px}
+.flexbox p span{color:#666}
+.flexbox p .spanTit{
+    padding:0px;
+    color:#999;
+    font-size: 12px;
+}
+.flexbox p .spanTit2{
+    padding:0px;
+    /*    color:#999;*/
+    font-size: 12px;
+}

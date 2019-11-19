@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MOD id="user" desc="用户数据">
+
+    <!-- 基础配置 -->
+    <PAGE id="personal" path="page/admin/sys/user/personal.jsp" desc="列表数据">
+        <SQL id="getUser" tpl="select p.*,(select name from t_sys_org where orgCode=p.orgId)as orgname,(select a.rname from t_sys_role a where a.stat=1 and a.rid in(select b.rid from t_sys_user_role b where b.uid = p.uid))xname from t_sys_user p where userid='$sysUsrId'" inst="sysUsrId" storeRow="1" upper="false"></SQL>
+    </PAGE>
+    <!-- 列表数据页 -->
+    <PAGE id="list" path="page/admin/sys/user/list.jsp" desc="列表数据"></PAGE>
+    <DATA id="dl" desc = "数据列表">
+        <SQL id="getlist" desc="查询数据" upper="false" tpl="select b.uid,b.orgId,(select name from t_sys_org where orgCode=b.orgId)as
+                orgName,(select rname from t_sys_role where rid = stype)as stype,b.userid,b.uname,b.rname,b.passwd,b.tel,b.email,b.cdate,b.lst_date
+				,b.edate,b.lst_ip,b.address,b.stat,b.remark,b.qq,b.wechat from t_sys_user b where @key " trans="stat@NoOrYes">
+            <DT id="key" tpl="(b.uname like '%:params%' or b.rname like '%:params%' or b.tel like '%:params%' or b.email like '%:params%'
+                or b.address like '%:params%'or b.qq like '%:params%' or b.wechat like '%:params%')" npl="1=1" para="params">
+            </DT>
+        </SQL>
+    </DATA>
+
+    <!-- 新增页 -->
+    <PAGE id="add" desc="新增" path="page/admin/sys/user/au.jsp">
+        <SQL id="org" tpl="select * from t_sys_org" upper="false"></SQL>
+        <SQL id="role" tpl="select * from t_sys_role" upper="false"></SQL>
+    </PAGE>
+
+    <!-- 修改页 -->
+    <PAGE id="edit" path="page/admin/sys/user/au.jsp" desc="修改">
+        <SQL id="getSingle" tpl="select b.uid,b.orgId,b.stype,b.userid,b.uname,b.rname,b.passwd,b.tel,b.email,b.cdate,b.lst_date,b.edate,b.lst_ip,b.address,b.stat,b.remark,b.qq,b.wechat,b.img,b.power,b.isType from t_sys_user b where uid = ?" para="uid" storeRow="1" upper="false">
+        </SQL>
+        <SQL id="org" tpl="select * from t_sys_org" upper="false"></SQL>
+        <SQL id="role" tpl="select * from t_sys_role" upper="false"></SQL>
+    </PAGE>
+
+    <!-- 详情页 -->
+    <PAGE id="view" path="page/admin/sys/user/detl.jsp" desc="详情">
+        <SQL id="getSingle" tpl="select b.uid,b.orgId,(select name from t_sys_org where orgCode=b.orgId)as orgName,(select rname from t_sys_role where rid = b.stype)as stype,b.userid,b.uname,b.rname
+				,b.passwd,b.tel,b.email,b.cdate,b.lst_date
+				,b.edate,b.lst_ip,b.address,b.t_sys_userstat,b.remark
+				,b.qq,b.wechat,b.img,b.isType from t_sys_user b where @uid" upper="false" storeRow="1">
+            <DT id="uid" tpl="uid=':uid'" para="uid"></DT>
+        </SQL>
+    </PAGE>
+
+    <FUNC id="update" tpl="{'err':'@edit','check':'@ack'}" attr="edit,ack" desc="修改数据">
+        <SQL tpl="select count(uid) uid from t_sys_user where uname =? and uid!=?" para="uname,uid" storeVal="uid" upper="false"></SQL>
+        <CHECK id="ack" test="@uid>0" succ="aa" fail="edit" attr="uid"></CHECK>
+        <BAT id="edit">
+            <DDL id="edit1" tpl="update t_sys_user set orgId=?,stype=?,userid=?,uname=?,rname=?,passwd=?,tel=?,email=?,address=?,stat=?,remark=?,qq=?,wechat=?,img=?,power=?,isType=?
+ where uid=?" para="orgId,stype,userid,uname,rname,passwd,tel,email,address,stat,remark,qq,wechat,img,power,isType,uid">
+            </DDL>
+            <DDL id="edit2" tpl="update t_sys_user_role set RID=? where UID=?" para="stype,uid"></DDL>
+        </BAT>
+    </FUNC>
+    <FUNC id="insert" tpl="{'err':'@add01','check':'@ack'}" attr="add01,ack" desc="添加数据">
+        <SQL tpl="select count(uid) uid from t_sys_user where userid =?" para="userid" storeVal="uid" upper="false"></SQL>
+        <CHECK id="ack" test="@uid>0" succ="aa" fail="add01" attr="uid"></CHECK>
+        <BAT id="add01">
+            <DDL id="add02" tpl="insert into t_sys_user(orgId,stype,userid,uname,rname,passwd,tel,email,address,stat,remark,qq,wechat,img,power,isType)values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)" genId="uuid"
+                 para="orgId,stype,userid,uname,rname,passwd,tel,email,address,stat,remark,qq,wechat,img,power,isType">
+            </DDL>
+            <DDL id="add03" tpl="insert into t_sys_user_role(UID,RID,CDATE,CREATOR)VALUES(@uuid,?,now(),'null')" attr="uuid" para="stype"></DDL>
+        </BAT>
+
+    </FUNC>
+    <!-- 删除功能 -->
+    <FUNC id="del" tpl="{'err':'@del3'}" attr="del3" desc="删除">
+        <BAT id="del3">
+            <DDL id="del2" tpl="delete from t_sys_user where @uid">
+                <DT id="uid" tpl="uid in (:uid)" para="uid" npl="1!=1"></DT>
+            </DDL>
+        </BAT>
+    </FUNC>
+
+    <!-- 导出功能 -->
+    <EXP id="down" desc="列表导出" fileName="用户列表.xls" type="XLS" tpl="ORGNAME:组织机构,STYPE:角色类型,UNAME:登录账号,RNAME:真实名字
+				,TEL:电话,EMAIL:电子邮箱,ADDRESS:地址,STAT:是否启用,QQ:QQ,WECHAT:微信">
+        <SQL id="getlist" desc="查询数据" upper="false" tpl="select b.uid,b.orgId,(select name from t_sys_org where orgCode=b.orgId)as
+                orgName,(select rname from t_sys_role where rid = stype)as stype,b.userid,b.uname,b.rname,b.passwd,b.tel,b.email,b.cdate,b.lst_date
+				,b.edate,b.lst_ip,b.address,b.stat,b.remark,b.qq,b.wechat from t_sys_user b where @key " trans="STAT@NoOrYes">
+            <DT id="key" tpl="(b.uname like '%:params%' or b.rname like '%:params%' or b.tel like '%:params%' or b.email like '%:params%'
+                or b.address like '%:params%'or b.qq like '%:params%' or b.wechat like '%:params%')" npl="1=1" para="params" trans="STAT@NoOrYes">
+            </DT>
+        </SQL>
+    </EXP>
+
+
+    <!-- 扩展配置 -->
+
+</MOD>
